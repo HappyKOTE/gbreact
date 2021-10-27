@@ -1,25 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react'
+import './App.css'
+import { Message } from './components/message'
 
 function App() {
+  const text = 'prop from App'
+  const [clickCount, setClickCount] = useState(0)
+
+  const handlerClick = () => {
+    setClickCount(clickCount + 1)
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <div>
+          message click count: {clickCount}
+        </div>
+        <Message message={text} onMessageClick={handlerClick} />
       </header>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
