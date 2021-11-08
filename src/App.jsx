@@ -164,7 +164,7 @@ function App() {
             <div key={idx}>
               <div className={(value.authorName === 'user') ? 'p-3 mb-2 alert alert-primary d-inline-block' : 'p-3 mb-2 alert alert-secondary d-inline-block'}>
                 <div className="d-flex justify-content-between">
-                  <div className="fw-bold me-3">{(value.authorName === 'bot') ? <i class="bi bi-robot"></i> : (value.authorName === 'user') ? 'вы' : value.authorName}</div>
+                  <div className="fw-bold me-3">{(value.authorName === 'bot') ? <i className="bi bi-robot"></i> : (value.authorName === 'user') ? 'вы' : value.authorName}</div>
                   <div>{value.message}</div>
                   <div className="text-muted ms-3">{dateAndTime(value.timestamp)}</div>
                 </div>
