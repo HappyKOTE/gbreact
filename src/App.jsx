@@ -9,7 +9,7 @@ function App() {
       'chatLog': [
         {
           'authorName': 'bot',
-          'message': 'Приветствую тебя, человек!',
+          'message': 'Приветствую тебя, человек! Я настолько умный, что знаю 2 команды: "дата" и "время"',
           'timestamp': ['07.11.2021', '12:00:00']
         }
       ]
@@ -46,26 +46,41 @@ function App() {
       ]
     }
   ])
+  
   const [activeChat, setActiveChat] = useState(0)
+
   const [message, setMessage] = useState('')
+
+  const [showSpinner, setShowSpinner] = useState(false)
+
+  let now = [
+    new Date().toLocaleDateString(),
+    new Date().toLocaleTimeString()
+  ]
+
+  const pushMessage = (chatNumber, chatMessage) => {
+    const newChats = [...chats]
+    newChats[chatNumber].chatLog.push(chatMessage)
+    setChats(newChats)
+  }
+
   const handleChange = (event) => {
     setMessage(event.target.value);
   }
+
   const textInput = React.createRef()
 
   const saveMessage = (event) => {
-    const now = [
-      new Date().toLocaleDateString(),
-      new Date().toLocaleTimeString()
-    ]
-    const object = {
-      'authorName': 'user',
-      'message': message,
-      'timestamp': now
+    if (message) {
+      const object = {
+        'authorName': 'user',
+        'message': message,
+        'timestamp': now
+      }
+      pushMessage(activeChat, object)
+      setMessage('')
     }
-    chats[activeChat].chatLog.push(object)
     event.preventDefault()
-    setMessage('')
     textInput.current.focus()
   }
 
@@ -80,18 +95,31 @@ function App() {
 
   useEffect(() => {
     if (chats[0].chatLog[chats[0].chatLog.length - 1].authorName === 'user') {
-      const now = [
-        new Date().toLocaleDateString(),
-        new Date().toLocaleTimeString()
-      ]
-      const object = {
-        'authorName': 'bot',
-        'message': 'У вас странный акцент. Повторите запрос ещё раз, пожалуйста.',
-        'timestamp': now
-      }
-      chats[0].chatLog.push(object)
+      setShowSpinner(true)
+      setTimeout(() => {
+        const object = {
+          'authorName': 'bot',
+          'message': '',
+          'timestamp': now
+        }
+        switch (chats[0].chatLog[chats[0].chatLog.length - 1].message) {
+          case 'дата':
+            object.message = 'Текущая дата ' + now[0]
+            break
+          case 'время':
+            object.message = 'Текущее время ' + now[1]
+            break
+          default:
+            object.message = 'А я упоминал, что знаю только 2 команды? "дата" или "время"'
+            break
+        }
+        setShowSpinner(false)
+        pushMessage(0, object)
+      }, 1500);
     }
-  }, [chats])
+  },
+  // eslint-disable-next-line
+  [chats])
 
   return (
     <div className="row">
@@ -100,7 +128,10 @@ function App() {
         {chats.map((value, idx) => (
           <div
             key={idx}
-            onClick={() => setActiveChat(idx)}
+            onClick={() => {
+              setActiveChat(idx)
+              textInput.current.focus()
+            }}
             className={(activeChat === idx) ? 'active rounded mb-2 p-3 chat-link' : 'rounded mb-2 p-3 chat-link'}
           >
             <div className="position-relative">
@@ -134,7 +165,7 @@ function App() {
             <div key={idx}>
               <div className={(value.authorName === 'user') ? 'p-3 mb-2 alert alert-primary d-inline-block' : 'p-3 mb-2 alert alert-secondary d-inline-block'}>
                 <div className="d-flex justify-content-between">
-                  <div className="fw-bold me-3">{value.authorName}</div>
+                  <div className="fw-bold me-3">{(value.authorName === 'bot') ? <i class="bi bi-robot"></i> : (value.authorName === 'user') ? 'вы' : value.authorName}</div>
                   <div>{value.message}</div>
                   <div className="text-muted ms-3">{dateAndTime(value.timestamp)}</div>
                 </div>
@@ -142,6 +173,8 @@ function App() {
             </div>
           ))}
 
+          {showSpinner && <div class="spinner-grow spinner-grow-sm" role="status"></div>}
+          
           </div>
           <div className="border-top p-3 bg-light">
             <form className="m-0 p-0" onSubmit={saveMessage}>
