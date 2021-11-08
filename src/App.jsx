@@ -85,8 +85,7 @@ function App() {
   }
 
   const dateAndTime = (value) => {
-    const now = new Date().toLocaleDateString()
-    if (value[0] === now) {
+    if (value[0] === now[0]) {
       return value[1]
     } else {
       return value[0]
