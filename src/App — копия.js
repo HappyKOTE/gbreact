@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import './App.css'
 import { Message } from './components/message'
+import { Button } from 'react-bootstrap'
 
 function App() {
   const text = 'prop from App'
@@ -11,13 +12,9 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <div>
-          message click count: {clickCount}
-        </div>
-        <Message message={text} onMessageClick={handlerClick} />
-      </header>
+    <div>
+      <div>message click count: {clickCount}</div>
+      <Message message={text} onMessageClick={handlerClick} />
     </div>
   )
 }
