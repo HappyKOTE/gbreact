@@ -172,7 +172,7 @@ function App() {
             </div>
           ))}
 
-          {showSpinner && <div class="spinner-grow spinner-grow-sm" role="status"></div>}
+          {showSpinner && <div className="spinner-grow spinner-grow-sm" role="status"></div>}
           
           </div>
           <div className="border-top p-3 bg-light">
