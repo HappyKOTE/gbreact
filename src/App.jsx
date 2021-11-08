@@ -51,7 +51,9 @@ function App() {
   const handleChange = (event) => {
     setMessage(event.target.value);
   }
-  const saveMessage = () => {
+  const textInput = React.createRef()
+
+  const saveMessage = (event) => {
     const now = [
       new Date().toLocaleDateString(),
       new Date().toLocaleTimeString()
@@ -62,8 +64,11 @@ function App() {
       'timestamp': now
     }
     chats[activeChat].chatLog.push(object)
+    event.preventDefault()
     setMessage('')
+    textInput.current.focus()
   }
+
   const dateAndTime = (value) => {
     const now = new Date().toLocaleDateString()
     if (value[0] === now) {
@@ -74,7 +79,18 @@ function App() {
   }
 
   useEffect(() => {
-    console.log('change')
+    if (chats[0].chatLog[chats[0].chatLog.length - 1].authorName === 'user') {
+      const now = [
+        new Date().toLocaleDateString(),
+        new Date().toLocaleTimeString()
+      ]
+      const object = {
+        'authorName': 'bot',
+        'message': 'У вас странный акцент. Повторите запрос ещё раз, пожалуйста.',
+        'timestamp': now
+      }
+      chats[0].chatLog.push(object)
+    }
   }, [chats])
 
   return (
@@ -106,7 +122,7 @@ function App() {
             {chats[activeChat].chatName}
             </div>
             <div className="text-muted">
-            {chats[activeChat].chatLog[chats[activeChat].chatLog.length-1].timestamp}
+            {dateAndTime(chats[activeChat].chatLog[chats[activeChat].chatLog.length-1].timestamp)}
             </div>
             <div className="position-absolute top-50 end-0 translate-middle-y">
               <Button variant="link" className="link-dark me-3"><i className="bi bi-three-dots-vertical"></i></Button>
@@ -128,10 +144,10 @@ function App() {
 
           </div>
           <div className="border-top p-3 bg-light">
-            <form className="m-0 p-0">
+            <form className="m-0 p-0" onSubmit={saveMessage}>
               <div className="input-group">
-                <input type="text" className="form-control border-0 rounded bg-transparent" placeholder="написать сообщение" autoFocus value={message} onChange={handleChange}></input>
-                <Button variant="primary" className="rounded-pill border-0 ms-2" onClick={saveMessage}><i className="bi bi-send"></i></Button>
+                <input type="text" className="form-control border-0 rounded bg-transparent" placeholder="написать сообщение" autoFocus value={message} onChange={handleChange} ref={textInput}></input>
+                <Button variant="primary" type="submit" className="rounded-pill border-0 ms-2"><i className="bi bi-send"></i></Button>
               </div>
             </form>
           </div>
