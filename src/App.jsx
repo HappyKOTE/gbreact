@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import { Button } from 'react-bootstrap'
+import { BrowserRouter, Link, Routes, Route, Navigate } from 'react-router-dom'
+import { Button, InputGroup, Form, Row, Col, Modal, ButtonGroup } from 'react-bootstrap'
+import Chats from './components/Chats'
+import Profile from './components/Profile'
 
 function App() {
   const [chats, setChats] = useState([
     {
       'chatName': 'Чат с ботом',
       'backgroundImage': './img/chat1.png',
+      'chatId': 'chat-s-botom',
       'chatLog': [
         {
           'authorName': 'bot',
-          'message': 'Приветствую тебя, человек! Я настолько умный, что знаю 2 команды: "дата" и "время"',
+          'message': 'Приветствую тебя, человек! Я настолько умный, что знаю 2 команды: "дата" или "время"',
           'timestamp': ['07.11.2021', '12:00:00']
         }
       ]
@@ -17,6 +21,7 @@ function App() {
     {
       'chatName': 'Козьма Прутков',
       'backgroundImage': './img/chat2.png',
+      'chatId': 'kozma-prutkov',
       'chatLog': [
         {
           'authorName': 'Миловидов',
@@ -46,29 +51,22 @@ function App() {
       ]
     }
   ])
-  
+
   const [activeChat, setActiveChat] = useState(0)
-
   const [message, setMessage] = useState('')
-
+  const [newChatName, setNewChatName] = useState('')
   const [showSpinner, setShowSpinner] = useState(false)
-
+  const [showAddChatModal, setShowAddChatModal] = useState(false)
   let now = [
     new Date().toLocaleDateString(),
     new Date().toLocaleTimeString()
   ]
-
   const pushMessage = (chatNumber, chatMessage) => {
     const newChats = [...chats]
     newChats[chatNumber].chatLog.push(chatMessage)
     setChats(newChats)
   }
-
-  const handleChange = (event) => {
-    setMessage(event.target.value);
-  }
-
-  const textInput = React.createRef()
+  const messageInput = React.createRef()
 
   const saveMessage = (event) => {
     if (message) {
@@ -81,18 +79,48 @@ function App() {
       setMessage('')
     }
     event.preventDefault()
-    textInput.current.focus()
+    messageInput.current.focus()
+  }
+
+  const saveNewChat = (event) => {
+    if (newChatName) {
+      const object = {
+        'chatName': newChatName,
+        'backgroundImage': '',
+        'chatId': '',
+        'chatLog': [
+          {
+            'authorName': 'system',
+            'message': 'Добро пожаловать в новый чат',
+            'timestamp': now
+          }
+        ]
+      }
+      const newChats = [...chats]
+      newChats.push(object)
+      setChats(newChats)
+      setShowAddChatModal(false)
+      setNewChatName('')
+    }
+    event.preventDefault()
+  }
+
+  const deleteChat = () => {
+    const newChats = [...chats]
+    newChats.splice(activeChat, 1)
+    setActiveChat(0)
+    setChats(newChats)
   }
 
   const dateAndTime = (value) => {
     if (value[0] === now[0]) {
-      return value[1]
+      return value[1].substr(0,5)
     } else {
       return value[0]
     }
   }
-
   useEffect(() => {
+    if (chats.length > 0) {
     if (chats[0].chatLog[chats[0].chatLog.length - 1].authorName === 'user') {
       setShowSpinner(true)
       setTimeout(() => {
@@ -101,7 +129,7 @@ function App() {
           'message': '',
           'timestamp': now
         }
-        switch (chats[0].chatLog[chats[0].chatLog.length - 1].message) {
+        switch (chats[0].chatLog[chats[0].chatLog.length - 1].message.toLowerCase()) {
           case 'дата':
             object.message = 'Текущая дата ' + now[0]
             break
@@ -115,78 +143,96 @@ function App() {
         setShowSpinner(false)
         pushMessage(0, object)
       }, 1500);
-    }
+    }}
   },
   // eslint-disable-next-line
   [chats])
 
-  return (
-    <div className="row">
+  return (   
+    <BrowserRouter>
+      <Row>
 
-      <aside className="col-4 vh-100 overflow-auto pb-2 pt-4">
-        {chats.map((value, idx) => (
-          <div
-            key={idx}
-            onClick={() => {
-              setActiveChat(idx)
-              textInput.current.focus()
-            }}
-            className={(activeChat === idx) ? 'active rounded mb-2 p-3 chat-link' : 'rounded mb-2 p-3 chat-link'}
-          >
-            <div className="position-relative">
-              <div className="d-flex justify-content-between">
-                <div className="fw-bold text-truncate">{value.chatName}</div>
-                <div className="text-muted">{dateAndTime(value.chatLog[value.chatLog.length-1].timestamp)}</div>
-              </div>
-              <div className="text-muted text-truncate">{value.chatLog[value.chatLog.length-1].message}</div>
-              <div className="position-absolute top-50 start-0 translate-middle-y bg-secondary rounded-circle" style={{ backgroundImage: 'url(' + value.backgroundImage + ')'  }}></div>
+        <Col xs={4} className="vh-100 overflow-auto pb-2 pt-4">
+          <div className="d-flex justify-content-between mb-4">
+            <ButtonGroup>
+              <Link to="chats" className="btn btn-light pe-1 bg-white border-0">чаты</Link>
+              <Button variant="light" className="ps-1 bg-white border-0" onClick={() => setShowAddChatModal(true)}><i className="bi bi-plus-circle"></i></Button>
+            </ButtonGroup>
+            <div>
+              <Link to="profile" className="btn btn-light bg-white border-0">профиль</Link>
             </div>
           </div>
-        ))}
-      </aside>
 
-      <div className="col-8 vh-100 pt-4 pb-4">
-        <div className="bg-white h-100 rounded d-flex flex-column overflow-hidden">
-          <div className="border-bottom p-3 position-relative bg-light">
-            <div className="fw-bold text-truncate">
-            {chats[activeChat].chatName}
-            </div>
-            <div className="text-muted">
-            {dateAndTime(chats[activeChat].chatLog[chats[activeChat].chatLog.length-1].timestamp)}
-            </div>
-            <div className="position-absolute top-50 end-0 translate-middle-y">
-              <Button variant="link" className="link-dark me-3"><i className="bi bi-three-dots-vertical"></i></Button>
-            </div>
-          </div>
-          <div className="h-100 p-3 overflow-auto">
+          <Modal show={showAddChatModal} onHide={() => setShowAddChatModal(false)}>
+            <Modal.Body>
+              <Form onSubmit={saveNewChat}>
+                <InputGroup>
+                  <Form.Control
+                    type="text"
+                    className="border-0 rounded bg-transparent"
+                    placeholder="имя нового чата"
+                    value={newChatName}
+                    onChange={(event) => setNewChatName(event.target.value)}
+                  />
+                  <Button variant="primary" type="submit" className="rounded border-0 ms-2">добавить</Button>
+                </InputGroup>
+              </Form>
+            </Modal.Body>
+          </Modal>
 
-          {chats[activeChat].chatLog.map((value, idx) => (
-            <div key={idx}>
-              <div className={(value.authorName === 'user') ? 'p-3 mb-2 alert alert-primary d-inline-block' : 'p-3 mb-2 alert alert-secondary d-inline-block'}>
+          {(chats.length === 0) ? <div>список чатов пуст</div> :
+          chats.map((value, idx) => (
+            <Link
+              key={idx}
+              to="chats"
+              onClick={() => {
+                setActiveChat(idx)
+                messageInput.current.focus()
+              }}
+              className={(activeChat === idx) ? 'active rounded mb-2 p-3 chat-link d-block text-decoration-none' : 'rounded mb-2 p-3 chat-link d-block text-decoration-none'}
+            >
+              <div className="position-relative">
                 <div className="d-flex justify-content-between">
-                  <div className="fw-bold me-3">{(value.authorName === 'bot') ? <i className="bi bi-robot"></i> : (value.authorName === 'user') ? 'вы' : value.authorName}</div>
-                  <div>{value.message}</div>
-                  <div className="text-muted ms-3">{dateAndTime(value.timestamp)}</div>
+                  <div className="fw-bold text-truncate text-dark">{value.chatName}</div>
+                  <div className="text-muted">{dateAndTime(value.chatLog[value.chatLog.length-1].timestamp)}</div>
                 </div>
+                <div className="text-muted text-truncate">{value.chatLog[value.chatLog.length-1].message}</div>
+                <div className="position-absolute top-50 start-0 translate-middle-y bg-secondary rounded-circle" style={{ backgroundImage: 'url(' + value.backgroundImage + ')'  }}></div>
               </div>
-            </div>
+            </Link>
           ))}
+        </Col>
 
-          {showSpinner && <div className="spinner-grow spinner-grow-sm" role="status"></div>}
-          
+        <Col xs={8} className="vh-100 pt-4 pb-4">
+          <div className="bg-white h-100 rounded">
+            <Routes>
+              <Route path="/" element={<Navigate replace to="chats" />} />
+              {(chats.length > 0) &&
+                <Route
+                  path='chats'
+                  element={
+                    <Chats
+                      chats={chats}
+                      activeChat={activeChat}
+                      now={now}
+                      showSpinner={showSpinner}
+                      dateAndTime={dateAndTime}
+                      message={message}
+                      setMessage={setMessage}
+                      saveMessage={saveMessage}
+                      messageInput={messageInput}
+                      deleteChat={deleteChat}
+                    />
+                  }
+                />
+              }
+              <Route path="profile" element={<Profile />} />
+            </Routes>
           </div>
-          <div className="border-top p-3 bg-light">
-            <form className="m-0 p-0" onSubmit={saveMessage}>
-              <div className="input-group">
-                <input type="text" className="form-control border-0 rounded bg-transparent" placeholder="написать сообщение" autoFocus value={message} onChange={handleChange} ref={textInput}></input>
-                <Button variant="primary" type="submit" className="rounded-pill border-0 ms-2"><i className="bi bi-send"></i></Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+        </Col>
 
-    </div>
+      </Row>
+    </BrowserRouter>
   )
 }
 
