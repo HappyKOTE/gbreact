@@ -1,6 +1,8 @@
 import { Button, InputGroup, Form, Dropdown } from 'react-bootstrap'
+import './style.css'
 
 function Chats(props) {
+
   return (
     <div className="h-100 d-flex flex-column overflow-hidden">
       <div className="border-bottom p-3 position-relative bg-light">
@@ -21,7 +23,7 @@ function Chats(props) {
           </Dropdown>
         </div>
       </div>
-      <div className="h-100 p-3 overflow-auto">
+      <div className="h-100 p-3 overflow-auto messages-list">
 
         {props.chats[props.activeChat].chatLog.map((value, idx) => (
           <div key={idx}>

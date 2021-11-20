@@ -2,5 +2,4 @@
 .chat-link:hover, .chat-link.active { background-color: #fff; }
 .chat-link:hover.active { cursor: auto; }
 .chat-link .rounded-circle { width: 50px; height: 50px; background-position: center; background-repeat: no-repeat; background-size: cover; }
-.chat-link .position-relative { padding-left: 60px; }
-.dropdown-toggle.btn-link:after { content: none !important; }
+.chat-link > .position-relative { padding-left: 60px; }
