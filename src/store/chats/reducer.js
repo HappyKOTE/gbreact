@@ -1,14 +1,18 @@
+import { CHANGE_ACTIVE_CHAT_ID } from "./actions"
+
 const initialState = {
-  'chatList': {
-    'f5d9b29c': {
+  'chatList': [
+    {
       'chatName': 'Чат с ботом',
-      'backgroundImage': './img/chat1.png'
+      'backgroundImage': './img/chat1.png',
+      'id': 'f5d9b29c'
     },
-    'f235a271': {
+    {
       'chatName': 'Козьма Прутков',
-      'backgroundImage': './img/chat2.png'
+      'backgroundImage': './img/chat2.png',
+      'id': 'f235a271'
     }
-  },
+  ],
   'messages': {
     'f5d9b29c': [
       {
@@ -46,11 +50,15 @@ const initialState = {
     ]
   },
   'activeChatId': 'f5d9b29c'
-
 }
 
 export const chatsReducer = (state = initialState, action) => {
   switch (action.type) {
+    case CHANGE_ACTIVE_CHAT_ID:
+      return {
+        ...state,
+        activeChatId: action.payload.chatId
+      }
     default:
       return state
   }

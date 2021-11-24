@@ -1,7 +1,8 @@
 import { currentDateTime } from './currentDateTime'
 
 export function dateOrTime(value) {
-  if (value[0] === currentDateTime[0]) {
+  const now = currentDateTime()
+  if (value[0] === now[0]) {
     return value[1].substr(0,5)
   } else {
     return value[0]

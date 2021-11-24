@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Provider } from 'react-redux'
 import { store } from "./store"
 import { BrowserRouter, Link, Routes, Route, Navigate } from 'react-router-dom'
@@ -7,7 +7,6 @@ import Chats from './components/Chats'
 import AddNewChatModal from './components/AddNewChatModal'
 import Profile from './components/Profile'
 import ChatList from './components/ChatList'
-import { currentDateTime } from './utils/currentDateTime'
 
 function App() {
   const [chats, setChats] = useState([
@@ -58,52 +57,10 @@ function App() {
   ])
 
   const [activeChat, setActiveChat] = useState(0)
-  
-  const [showSpinner, setShowSpinner] = useState(false)
+
   const [showAddChatModal, setShowAddChatModal] = useState(false)
-
-  const findChatIndex = (id) => {
-    for (let i = 0; i < chats.length; i++) {
-      if (chats[i].chatId === id) {
-        return i
-      } else {
-        return -1
-      }
-    }
-  }
-
+  
   const messageInput = React.createRef()
-
-  useEffect(() => {
-    if (chats.length > 0) {
-      let chatIndex = findChatIndex('f5d9b29c')
-      if (chatIndex >=0 && chats[chatIndex].chatLog[chats[chatIndex].chatLog.length - 1].authorName === 'user') {
-        setShowSpinner(true)
-        setTimeout(() => {
-          const object = {
-            'authorName': 'bot',
-            'message': '',
-            'timestamp': currentDateTime()
-          }
-          switch (chats[chatIndex].chatLog[chats[chatIndex].chatLog.length - 1].message.toLowerCase()) {
-            case 'дата':
-              object.message = 'Текущая дата ' + currentDateTime[0]
-              break
-            case 'время':
-              object.message = 'Текущее время ' + currentDateTime[1]
-              break
-            default:
-              object.message = 'А я упоминал, что знаю только 2 команды? "дата" или "время"'
-              break
-          }
-          setShowSpinner(false)
-          pushMessage(chatIndex, object)
-        }, 1500)
-      }
-    }
-  },
-  // eslint-disable-next-line
-  [chats])
 
   return (
     <Provider store={store}>
@@ -148,14 +105,7 @@ function App() {
                       <Chats
                         chats={chats}
                         activeChat={activeChat}
-                        setActiveChat={setActiveChat}
                         setChats={setChats}
-                        showSpinner={showSpinner}
-                        message={message}
-                        setMessage={setMessage}
-                        saveMessage={saveMessage}
-                        messageInput={messageInput}
-                        findChatIndex={findChatIndex}
                         messageInput={messageInput}
                       />
                     }

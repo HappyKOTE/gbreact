@@ -1,6 +1,6 @@
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { toggleCheckbox } from "../../store/profile/actions";
+import React from "react"
+import { useSelector, useDispatch } from "react-redux"
+import { toggleCheckbox } from "../../store/profile/actions"
 import { Form } from 'react-bootstrap'
 
 function Profile() {
