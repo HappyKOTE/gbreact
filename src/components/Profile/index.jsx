@@ -4,8 +4,8 @@ import { toggleCheckbox } from "../../store/profile/actions";
 import { Form } from 'react-bootstrap'
 
 function Profile() {
-  const checkboxValue = useSelector(state => state.checkbox)
-  const name = useSelector(state => state.name)
+  const checkboxValue = useSelector(state => state.profile.checkbox)
+  const name = useSelector(state => state.profile.name)
   const dispatch = useDispatch()
 
   const handleChange = () => {

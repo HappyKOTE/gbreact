@@ -1,7 +1,38 @@
 import { Button, InputGroup, Form, Dropdown } from 'react-bootstrap'
+import { dateOrTime } from '../../utils/dateOrTime'
+import { currentDateTime } from '../../utils/currentDateTime'
+import React, { useState } from 'react'
 import './style.css'
 
 function Chats(props) {
+  const [message, setMessage] = useState('')
+
+  const deleteChat = () => {
+    const newChats = [...props.chats]
+    newChats.splice(props.activeChat, 1)
+    props.setActiveChat(0)
+    props.setChats(newChats)
+  }
+
+  const pushMessage = (chatNumber, chatMessage) => {
+    const newChats = [...props.chats]
+    newChats[chatNumber].chatLog.push(chatMessage)
+    props.setChats(newChats)
+  }
+
+  const saveMessage = (event) => {
+    if (message) {
+      const object = {
+        'authorName': 'user',
+        'message': message,
+        'timestamp': currentDateTime()
+      }
+      pushMessage(props.activeChat, object)
+      setMessage('')
+    }
+    event.preventDefault()
+    props.messageInput.current.focus()
+  }
 
   return (
     <div className="h-100 d-flex flex-column overflow-hidden">
@@ -10,7 +41,7 @@ function Chats(props) {
           {props.chats[props.activeChat].chatName}
         </div>
         <div className="text-muted">
-          {props.dateAndTime(props.chats[props.activeChat].chatLog[props.chats[props.activeChat].chatLog.length-1].timestamp)}
+          {dateOrTime(props.chats[props.activeChat].chatLog[props.chats[props.activeChat].chatLog.length-1].timestamp)}
         </div>
           <div className="position-absolute top-50 end-0 translate-middle-y">
           <Dropdown>
@@ -18,7 +49,7 @@ function Chats(props) {
               <i className="bi bi-three-dots-vertical"></i>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item as="button" onClick={props.deleteChat}>удалить чат</Dropdown.Item>
+              <Dropdown.Item as="button" onClick={deleteChat}>удалить чат</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </div>
@@ -31,7 +62,7 @@ function Chats(props) {
               <div className="d-flex justify-content-between">
                 <div className="fw-bold me-3">{(value.authorName === 'bot') ? <i className="bi bi-robot"></i> : (value.authorName === 'user') ? 'вы' : value.authorName}</div>
                 <div>{value.message}</div>
-                <div className="text-muted ms-3">{props.dateAndTime(value.timestamp)}</div>
+                <div className="text-muted ms-3">{dateOrTime(value.timestamp)}</div>
               </div>
             </div>
             <div className="clearfix"></div>
@@ -41,7 +72,7 @@ function Chats(props) {
 
       </div>
       <div className="border-top p-3 bg-light">
-        <Form onSubmit={props.saveMessage}>
+        <Form onSubmit={saveMessage}>
           <InputGroup>
             <Form.Control
               type="text"
