@@ -99,18 +99,15 @@ function App() {
             <div className="bg-white h-100 rounded">
               <Routes>
                 <Route path="/" element={<Navigate replace to="chats" />} />
-                {(chats.length > 0) &&
-                  <Route path='chats'
-                    element={
-                      <Chats
-                        chats={chats}
-                        activeChat={activeChat}
-                        setChats={setChats}
-                        messageInput={messageInput}
-                      />
-                    }
-                  />
-                }
+                <Route
+                  path="chats/:id"
+                  element={<Chats
+                  chats={chats}
+                  activeChat={activeChat}
+                  setChats={setChats}
+                  messageInput={messageInput}
+                  />}
+                />
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<div className="p-3"><h1 className="p-0 m-0">404</h1></div>} />
               </Routes>

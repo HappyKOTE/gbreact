@@ -41,13 +41,13 @@ function Chats(props) {
   }
 
   const findChatIndex = (id) => {
+    //return chatlist.findIndex(chart => chart.id === id);
     for (let i = 0; i < chatlist.length; i++) {
       if (chatlist[i].id === id) {
         return i
-      } else {
-        return -1
       }
     }
+    return -1;
   }
 
   useEffect(() => {
@@ -81,7 +81,6 @@ function Chats(props) {
   },
   // eslint-disable-next-line
   [props.chats])
-
   return (
     <div className="h-100 d-flex flex-column overflow-hidden">
       <div className="border-bottom p-3 position-relative bg-light">

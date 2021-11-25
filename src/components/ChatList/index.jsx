@@ -15,9 +15,11 @@ function ChatList(props) {
     <>
       {(chatlist.length === 0) ? <div>список чатов пуст</div> :
         chatlist.map((value, idx) => (
-          <Link key={value.id} to='chats' onClick={()=> {
-              props.setActiveChat(idx)
-              dispatch(changeActiveChatId(value.id))
+          <Link
+            key={value.id}
+            to={`/chats/${value.id}`}
+            nClick={() => {
+             dispatch(changeActiveChatId(value.id))
               props.messageInput.current.focus()
             }}
             className={(activeChatId === value.id) ? 'active rounded mb-2 p-3 chat-link d-block text-decoration-none' : 'rounded mb-2 p-3 chat-link d-block text-decoration-none'}
