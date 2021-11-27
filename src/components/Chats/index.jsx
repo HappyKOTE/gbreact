@@ -1,29 +1,30 @@
 import { Button, InputGroup, Form, Dropdown } from 'react-bootstrap'
 import { dateOrTime } from '../../utils/dateOrTime'
 import { currentDateTime } from '../../utils/currentDateTime'
+import { findIndex } from '../../utils/findIndex'
 import React, { useState, useEffect } from 'react'
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
+import { changeActiveChatId } from "../../store/chats/actions"
+import { deleteChat } from "../../store/chats/actions"
+import { addMessage } from "../../store/chats/actions"
+import { useParams } from "react-router-dom"
 import './style.css'
 
 function Chats(props) {
+  const routeId = useParams().id
   const [message, setMessage] = useState('')
   const [showSpinner, setShowSpinner] = useState(false)
 
-  const chatlist = useSelector(state => state.chats.chatList)
+  const chats = useSelector(state => state.chats.chats)
   const activeChatId = useSelector(state => state.chats.activeChatId)
-  const messages = useSelector(state => state.chats.messages)
+  const dispatch = useDispatch()
 
-  const deleteChat = () => {
-    const newChats = [...props.chats]
-    newChats.splice(props.activeChat, 1)
-    props.setActiveChat(0)
-    props.setChats(newChats)
+  const deleteThis = () => {
+    dispatch(deleteChat())
   }
 
-  const pushMessage = (chatNumber, chatMessage) => {
-    const newChats = [...props.chats]
-    newChats[chatNumber].chatLog.push(chatMessage)
-    props.setChats(newChats)
+  const pushMessage = (payload) => {
+    dispatch(addMessage(payload))
   }
 
   const saveMessage = (event) => {
@@ -33,63 +34,69 @@ function Chats(props) {
         'message': message,
         'timestamp': currentDateTime()
       }
-      pushMessage(props.activeChat, object)
+      pushMessage(object)
       setMessage('')
     }
     event.preventDefault()
-    props.messageInput.current.focus()
-  }
-
-  const findChatIndex = (id) => {
-    for (let i = 0; i < chatlist.length; i++) {
-      if (chatlist[i].id === id) {
-        return i
-      } else {
-        return -1
-      }
-    }
+    props.messageInput.current?.focus()
   }
 
   useEffect(() => {
-    if (props.chats.length > 0) {
-      let chatIndex = findChatIndex('f5d9b29c')
-      if (chatIndex >=0 && props.chats[chatIndex].chatLog[props.chats[chatIndex].chatLog.length - 1].authorName === 'user') {
-        setShowSpinner(true)
-        setTimeout(() => {
-          const object = {
-            'authorName': 'bot',
-            'message': '',
-            'timestamp': currentDateTime()
-          }
-          const now = currentDateTime()
-          switch (props.chats[chatIndex].chatLog[props.chats[chatIndex].chatLog.length - 1].message.toLowerCase()) {
-            case 'дата':
-              object.message = 'Текущая дата ' + now[0]
-              break
-            case 'время':
-              object.message = 'Текущее время ' + now[1]
-              break
-            default:
-              object.message = 'А я упоминал, что знаю только 2 команды? "дата" или "время"'
-              break
-          }
-          setShowSpinner(false)
-          pushMessage(chatIndex, object)
-        }, 1500)
+    if (findIndex(routeId, chats) >= 0) {
+      dispatch(changeActiveChatId(routeId))
+    }},
+  // eslint-disable-next-line
+  [routeId])
+
+  useEffect(() => {
+    if (chats.length > 0) {
+      let chatIndex = findIndex('f5d9b29c', chats)
+      if (chatIndex >= 0) {
+        if (chats[chatIndex].chatLog[chats[chatIndex].chatLog.length-1].authorName === 'user') {
+          setShowSpinner(true)
+          setTimeout(() => {
+            const object = {
+              'authorName': 'bot',
+              'message': '',
+              'timestamp': currentDateTime()
+            }
+            const now = currentDateTime()
+            switch (chats[chatIndex].chatLog[chats[chatIndex].chatLog.length-1].message.toLowerCase()) {
+              case 'дата':
+                object.message = 'Текущая дата ' + now[0]
+                break
+              case 'время':
+                object.message = 'Текущее время ' + now[1]
+                break
+              default:
+                object.message = 'А я упоминал, что знаю только 2 команды? "дата" или "время"'
+                break
+            }
+            setShowSpinner(false)
+            pushMessage(object)
+          }, 1500)
+        }
       }
     }
   },
   // eslint-disable-next-line
-  [props.chats])
+  [chats])
 
   return (
+    <>
+    {(findIndex(routeId, chats) < 0 && routeId !== undefined) ?
+    <div className="h-100 position-relative">
+      <div className="position-absolute top-50 start-50 translate-middle">
+        <i className="bi bi-exclamation-triangle text-danger"></i> чат не найден
+      </div>
+    </div> :
     <div className="h-100 d-flex flex-column overflow-hidden">
       <div className="border-bottom p-3 position-relative bg-light">
         <div className="fw-bold text-truncate">
-          {chatlist[findChatIndex(activeChatId)].chatName}
+          {chats[findIndex(activeChatId, chats)].chatName}
         </div>
         <div className="text-muted">
-          {dateOrTime(messages[activeChatId][messages[activeChatId].length-1].timestamp)}
+          {dateOrTime(chats[findIndex(activeChatId, chats)].chatLog[chats[findIndex(activeChatId, chats)].chatLog.length-1].timestamp)}
         </div>
           <div className="position-absolute top-50 end-0 translate-middle-y">
           <Dropdown>
@@ -97,14 +104,14 @@ function Chats(props) {
               <i className="bi bi-three-dots-vertical"></i>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item as="button" onClick={deleteChat}>удалить чат</Dropdown.Item>
+              <Dropdown.Item as="button" onClick={deleteThis}>удалить чат</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </div>
       </div>
       <div className="h-100 p-3 overflow-auto messages-list">
 
-        {messages[activeChatId].map((value, idx) => (
+        {chats[findIndex(activeChatId, chats)].chatLog.map((value, idx) => (
           <div key={idx}>
             <div className={(value.authorName==='user') ? 'p-3 mb-2 rounded d-inline-block bg-primary bg-opacity-10 float-end' : 'p-3 mb-2 rounded d-inline-block bg-secondary bg-opacity-10'}>
               <div className="d-flex justify-content-between">
@@ -135,6 +142,8 @@ function Chats(props) {
         </Form>
       </div>
     </div>
+    }
+    </>
   )
 }
 

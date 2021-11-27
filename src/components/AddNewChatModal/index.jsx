@@ -1,15 +1,20 @@
-import React, { useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Button, InputGroup, Form, Modal } from 'react-bootstrap'
 import { currentDateTime } from '../../utils/currentDateTime'
+import { useSelector, useDispatch } from "react-redux"
+import { addChat } from "../../store/chats/actions"
 
 function AddNewChatModal(props) {
   const [newChatName, setNewChatName] = useState('')
+  const chats = useSelector(state => state.chats.chats)
+  const dispatch = useDispatch()
+  const newChatsInput = useRef()
 
   const createNewChatId = () => {
     let errors = 0
     const uuid = `f${(~~(Math.random()*1e8)).toString(16)}`
-    for (let i = 0; i === props.chats.length; i++) {
-      if (uuid === props.chats[i].chatId) {
+    for (let i = 0; i === chats.length; i++) {
+      if (uuid === chats[i].chatId) {
         errors++
       }
     }
@@ -20,13 +25,18 @@ function AddNewChatModal(props) {
     }
   }
 
+  useEffect(() => {
+    newChatsInput.current?.focus()
+  },
+  // eslint-disable-next-line
+  [props.showAddChatModal])
+
   const saveNewChat = (event) => {
     if (newChatName) {
       const chatId = createNewChatId()
       const object = {
         'chatName': newChatName,
-        'backgroundImage': '',
-        'chatId': chatId,
+        'id': chatId,
         'chatLog': [
           {
             'authorName': 'system',
@@ -35,9 +45,7 @@ function AddNewChatModal(props) {
           }
         ]
       }
-      const newChats = [...props.chats]
-      newChats.push(object)
-      props.setChats(newChats)
+      dispatch(addChat(object))
       props.setShowAddChatModal(false)
       setNewChatName('')
     }
@@ -49,10 +57,15 @@ function AddNewChatModal(props) {
       <Modal.Body>
         <Form onSubmit={saveNewChat}>
           <InputGroup>
-            <Form.Control type="text" className="border-0 rounded bg-transparent" placeholder="имя нового чата"
-              value={newChatName} onChange={(event)=> setNewChatName(event.target.value)}
-              />
-              <Button variant="primary" type="submit" className="rounded border-0 ms-2">добавить</Button>
+            <Form.Control
+              type="text"
+              className="border-0 rounded bg-transparent"
+              placeholder="имя нового чата"
+              value={newChatName}
+              onChange={(event)=> setNewChatName(event.target.value)}
+              ref={newChatsInput}
+            />
+            <Button variant="primary" type="submit" className="rounded border-0 ms-2">добавить</Button>
           </InputGroup>
         </Form>
       </Modal.Body>

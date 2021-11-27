@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Provider } from 'react-redux'
 import { store } from "./store"
 import { BrowserRouter, Link, Routes, Route, Navigate } from 'react-router-dom'
@@ -9,58 +9,9 @@ import Profile from './components/Profile'
 import ChatList from './components/ChatList'
 
 function App() {
-  const [chats, setChats] = useState([
-    {
-      'chatName': 'Чат с ботом',
-      'backgroundImage': './img/chat1.png',
-      'chatId': 'f5d9b29c',
-      'chatLog': [
-        {
-          'authorName': 'bot',
-          'message': 'Приветствую тебя, человек! Я настолько умный, что знаю 2 команды: "дата" или "время"',
-          'timestamp': ['07.11.2021', '12:00:00']
-        }
-      ]
-    },
-    {
-      'chatName': 'Козьма Прутков',
-      'backgroundImage': './img/chat2.png',
-      'chatId': 'f235a271',
-      'chatLog': [
-        {
-          'authorName': 'Миловидов',
-          'message': '(говорит мягким басом, плавно, важно, авторитетно) Итак, нашего Ивана Семеныча уже не существует!.. Все, что было  у  него приятного, исчезло вместе с ним!',
-          'timestamp': ['07.11.2021', '12:00:00']
-        },
-        {
-          'authorName': 'Кутило-Завалдайский',
-          'message': '(со вздохом) Сколько у него было душ и десятин пахотной земли?',
-          'timestamp': ['07.11.2021', '13:00:00']
-        },
-        {
-          'authorName': 'Миловидов',
-          'message': 'Главное его имение,  село  Курохвостово,  не  помню:  Астраханской  или Архангельской губернии? Душ  по  последней  ревизии  числилось  пятьсот;  по крайней мере, так выразился, говоря со мною, заседатель  гражданской  палаты Фирдин, Иван Петрович.',
-          'timestamp': ['07.11.2021', '14:00:00']
-        },
-        {
-          'authorName': 'Кн. Батог-Батыев',
-          'message': '(с подвязанною щекою; говорит шепелявя и с присвистом) Фирдин?..  Какой  Фирдин?  Не  тот  ли,  который  ранен  был  на  дуэли ротмистром Кавтыревым?',
-          'timestamp': ['07.11.2021', '15:00:00']
-        },
-        {
-          'authorName': 'user',
-          'message': 'Вы чего несёте?',
-          'timestamp': ['07.11.2021', '16:00:00']
-        }
-      ]
-    }
-  ])
-
-  const [activeChat, setActiveChat] = useState(0)
 
   const [showAddChatModal, setShowAddChatModal] = useState(false)
-  
-  const messageInput = React.createRef()
+  const messageInput = useRef()
 
   return (
     <Provider store={store}>
@@ -79,38 +30,17 @@ function App() {
               </div>
             </div>
 
-            <AddNewChatModal 
-              showAddChatModal={showAddChatModal} 
-              setShowAddChatModal={setShowAddChatModal} 
-              chats={chats} 
-              setChats={setChats} 
-            />
-
-            <ChatList
-              chats={chats}
-              setActiveChat={setActiveChat}
-              activeChat={activeChat}
-              messageInput={messageInput}
-            />
-
+            <AddNewChatModal showAddChatModal={showAddChatModal} setShowAddChatModal={setShowAddChatModal} />
+            <ChatList messageInput={messageInput} />
           </Col>
 
           <Col xs={8} className="vh-100 pt-4 pb-4">
-            <div className="bg-white h-100 rounded">
+            <div className="bg-white h-100 rounded overflow-hidden">
               <Routes>
                 <Route path="/" element={<Navigate replace to="chats" />} />
-                {(chats.length > 0) &&
-                  <Route path='chats'
-                    element={
-                      <Chats
-                        chats={chats}
-                        activeChat={activeChat}
-                        setChats={setChats}
-                        messageInput={messageInput}
-                      />
-                    }
-                  />
-                }
+                <Route path="chats" element={<Chats messageInput={messageInput} />}>
+                  <Route path=":id" element={<Chats messageInput={messageInput} />} />
+                </Route>
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<div className="p-3"><h1 className="p-0 m-0">404</h1></div>} />
               </Routes>
