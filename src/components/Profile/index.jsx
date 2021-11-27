@@ -2,10 +2,12 @@ import React from "react"
 import { useSelector, useDispatch } from "react-redux"
 import { toggleCheckbox } from "../../store/profile/actions"
 import { Form } from 'react-bootstrap'
+import { selectName } from "../../store/profile/selectors"
+import { selectCheckbox } from "../../store/profile/selectors"
 
 function Profile() {
-  const checkboxValue = useSelector(state => state.profile.checkbox)
-  const name = useSelector(state => state.profile.name)
+  const checkboxValue = useSelector(selectCheckbox)
+  const name = useSelector(selectName)
   const dispatch = useDispatch()
 
   const handleChange = () => {

@@ -1,4 +1,4 @@
-import { CHANGE_ACTIVE_CHAT_ID, DELETE_CHAT, ADD_CHAT, ADD_MESSAGE } from "./actions"
+import { CHANGE_ACTIVE_CHAT_ID, DELETE_CHAT, ADD_CHAT, ADD_MESSAGE, SHOW_SPINNER } from "./actions"
 import { findIndex } from '../../utils/findIndex'
 
 const initialState = {
@@ -6,6 +6,7 @@ const initialState = {
     {
       'chatName': 'Чат с ботом',
       'id': 'f5d9b29c',
+      'bot': true,
       'chatLog': [
         {
           'authorName': 'bot',
@@ -17,6 +18,7 @@ const initialState = {
     {
       'chatName': 'Козьма Прутков',
       'id': 'f235a271',
+      'bot': false,
       'chatLog': [
         {
           'authorName': 'Миловидов',
@@ -46,7 +48,8 @@ const initialState = {
       ]
     }
   ],
-  'activeChatId': 'f5d9b29c'
+  'activeChatId': 'f5d9b29c',
+  'showSpinner': false
 }
 
 export const chatsReducer = (state = initialState, action) => {
@@ -70,17 +73,22 @@ export const chatsReducer = (state = initialState, action) => {
     case ADD_MESSAGE:
       let newState = []
       for (let i = 0; i < state.chats.length; i++) {
-        if (state.activeChatId !== state.chats[i].id) {
+        if (action.payload.chatId !== state.chats[i].id) {
           newState.push(state.chats[i])
         } else {
           let newObj = state.chats[i]
-          newObj.chatLog.push(action.payload)
+          newObj.chatLog.push(action.payload.message)
           newState.push(newObj)
         }
       }
       return {
         ...state,
         chats: newState
+      }
+    case SHOW_SPINNER:
+      return {
+        ...state,
+        showSpinner: action.payload
       }
     default:
       return state

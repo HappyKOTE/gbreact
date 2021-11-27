@@ -3,11 +3,13 @@ import { dateOrTime } from '../../utils/dateOrTime'
 import { findIndex } from '../../utils/findIndex'
 import { Link } from 'react-router-dom'
 import { useSelector } from "react-redux"
+import { selectChats } from "../../store/chats/selectors"
+import { selectActiveChatId } from "../../store/chats/selectors"
 import './style.css'
 
 function ChatList(props) {
-  const chats = useSelector(state => state.chats.chats)
-  const activeChatId = useSelector(state => state.chats.activeChatId)
+  const chats = useSelector(selectChats)
+  const activeChatId = useSelector(selectActiveChatId)
 
   return (
     <>
