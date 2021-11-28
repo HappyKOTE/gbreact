@@ -5,6 +5,7 @@ import Chats from './components/Chats'
 import AddNewChatModal from './components/AddNewChatModal'
 import Profile from './components/Profile'
 import ChatList from './components/ChatList'
+import News from './components/News'
 
 function App() {
 
@@ -22,6 +23,9 @@ function App() {
               <Button variant="light" className="ps-1 bg-white border-0" onClick={() => setShowAddChatModal(true)}><i className="bi bi-plus-circle"></i></Button>
             </ButtonGroup>
             <div>
+              <Link to="news" className="btn btn-light bg-white border-0 fw-bold">новости</Link>
+            </div>
+            <div>
               <Link to="profile" className="btn btn-light bg-white border-0 fw-bold">профиль</Link>
             </div>
           </div>
@@ -37,6 +41,7 @@ function App() {
                 <Route path=":id" element={<Chats messageInput={messageInput} />} />
               </Route>
               <Route path="profile" element={<Profile />} />
+              <Route path="news" element={<News />} />
               <Route path="*" element={<div className="p-3"><h1 className="p-0 m-0">404</h1></div>} />
             </Routes>
           </div>
