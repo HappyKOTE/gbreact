@@ -80,7 +80,7 @@ function AddNewChatModal(props) {
               type="text"
               placeholder="имя нового чата"
               value={newChatName}
-              onChange={(event)=> setNewChatName(event.target.value)}
+              onChange={(e) => setNewChatName(e.target.value)}
               ref={newChatsInput}
             />
           </InputGroup>

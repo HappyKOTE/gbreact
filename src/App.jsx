@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { BrowserRouter, Link, Routes, Route, Navigate } from 'react-router-dom'
 import { Button, Row, Col, ButtonGroup } from 'react-bootstrap'
 import Chats from './components/Chats'
@@ -7,10 +7,48 @@ import Profile from './components/Profile'
 import ChatList from './components/ChatList'
 import News from './components/News'
 
+import { logIn } from "./services/firebase"
+import { useDispatch, useSelector } from "react-redux"
+import { auth, messagesRef } from "./services/firebase"
+import { signIn, signOut } from "./store/profile/actions"
+import { PrivateRoute } from "./components/PrivateRoute"
+import { PublicOutlet, PublicRoute } from "./components/PublicRoute"
+import { SignUp } from "./components/SignUp"
+import { SignForm } from "./components/SignForm"
+
 function App() {
 
   const [showAddChatModal, setShowAddChatModal] = useState(false)
   const messageInput = useRef()
+
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        dispatch(signIn())
+      } else {
+        dispatch(signOut())
+      }
+  })
+
+    return () => unsubscribe()
+  }, [])
+
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSignIn = async (email, pass) => {
+    setLoading(true)
+    try {
+      await logIn(email, pass)
+    } catch (err) {
+      console.warn(err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <BrowserRouter>
@@ -26,21 +64,28 @@ function App() {
               <Link to="news" className="btn btn-light bg-white border-0 fw-bold">новости</Link>
             </div>
             <div>
+              <Link to="signup">регистрация</Link>
+            </div>
+            <div>
               <Link to="profile" className="btn btn-light bg-white border-0 fw-bold">профиль</Link>
             </div>
           </div>
           <AddNewChatModal showAddChatModal={showAddChatModal} setShowAddChatModal={setShowAddChatModal} />
-          <ChatList messageInput={messageInput} />
+          <PrivateRoute><ChatList messageInput={messageInput} /></PrivateRoute>
+          <SignForm onSubmit={handleSignIn} error={error} loading={loading} />
         </Col>
 
         <Col xs={8} className="vh-100 pt-4 pb-4">
           <div className="bg-white h-100 rounded overflow-hidden">
             <Routes>
-              <Route path="/" element={<Navigate replace to="chats" />} />
-              <Route path="chats" element={<Chats messageInput={messageInput} />}>
-                <Route path=":id" element={<Chats messageInput={messageInput} />} />
+              <Route path="/" element={<PublicOutlet />} />
+              <Route path="/signup" element={<PublicOutlet />}>
+                <Route path="" element={<SignUp />} />
               </Route>
-              <Route path="profile" element={<Profile />} />
+              <Route path="chats" element={<PrivateRoute><Chats messageInput={messageInput} /></PrivateRoute>}>
+                <Route path=":id" element={<PrivateRoute><Chats messageInput={messageInput} /></PrivateRoute>} />
+              </Route>
+              <Route path="profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="news" element={<News />} />
               <Route path="*" element={<div className="p-3"><h1 className="p-0 m-0">404</h1></div>} />
             </Routes>

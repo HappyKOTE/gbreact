@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Button } from 'react-bootstrap'
+import { Button, Table } from 'react-bootstrap'
 import { useDispatch, useSelector } from "react-redux";
 import { selectData, selectLoading, selectError } from "../../store/news/selectors"
 import { needData } from "../../store/news/actions"
@@ -12,7 +12,7 @@ function News() {
 
   const requestData = async () => {
     dispatch(needData())
-  };
+  }
 
   useEffect(() => {
     requestData()
@@ -26,7 +26,27 @@ function News() {
       <div className="h-100 overflow-auto p-3 pt-0">
         {isLoading && <div><div className="spinner-grow spinner-grow-sm" role="status"></div> загрузка данных</div>}
         {(!!error && !isLoading) && <div><i className="bi bi-exclamation-triangle text-danger"></i> ошибка загрузки данных. {error}</div>}
-        {(!isLoading && !error) && data.map((value) => (<div key={value.id}>{value.fullName.en}</div>))}
+        {(!isLoading && !error) &&
+          <Table responsive>
+            <thead>
+              <tr>
+                <th>laureate</th>
+                <th>year</th>
+                <th>category</th>
+                <th>motivation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((value) => (
+              <tr key={value.id}>
+                <td>{value.fullName.en}</td>
+                <td>{value.nobelPrizes[0].awardYear}</td>
+                <td>{value.nobelPrizes[0].category.en}</td>
+                <td>{value.nobelPrizes[0].motivation.en}</td>
+              </tr>))}
+            </tbody>
+          </Table>
+        }
         {!isLoading && <Button variant="outline-primary" onClick={requestData} className="mt-3">обновить</Button>}
       </div>
     </div>

@@ -11,7 +11,11 @@ import storage from 'redux-persist/lib/storage'
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
-const persistConfig = { key: 'gbChats', storage }
+const persistConfig = {
+  key: 'gbChats',
+  storage,
+  blacklist: ['profile']
+}
 
 const rootReducer = combineReducers({
   profile: profileReducer,

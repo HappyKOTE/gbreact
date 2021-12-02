@@ -22,11 +22,11 @@ export const needData = () => async (dispatch) => {
   dispatch(reqLoading())
   try {
     const response = await fetch(apiUrl)
-    console.log(response)
     if (!response.ok) {
       throw new Error(`Запрос завершился с ошибкой ${response.status}`)
     }
     const result = await response.json()
+    console.log(result)
     dispatch(reqSuccess(result.laureates))
   }
   catch (err) {
